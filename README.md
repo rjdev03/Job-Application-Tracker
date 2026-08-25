@@ -29,25 +29,16 @@ A modern, full-stack Kanban style dashboard designed to manage, organize, and tr
 ## Repository Structure
 
 ```text
-
-├── app/ # Next.js App Router (Pages, API routes, Layouts)
-
-├── components/ # Reusable Shadcn/UI and custom application layout pieces
-
-├── lib/ # Database utility, helper hooks, authentication, and core configurations
-
-│ ├── actions/ # Server actions handling data mutation
-
-│ ├── auth/ # Client and server authentication workflows
-
-│ └── models/ # Mongoose schemas (Boards, Columns, Applications)
-
-├── public/ # Static assets and application hero imagery
-
-├── scripts/ # Database seeding and configuration scripts
-
+.
+├── app/               # Next.js App Router (Pages, API routes, Layouts)
+├── components/        # Reusable Shadcn/UI and custom application layout pieces
+├── lib/               # Database utility, helper hooks, authentication, and core configurations
+│   ├── actions/       # Server actions handling data mutation
+│   ├── auth/          # Client and server authentication workflows
+│   └── models/        # Mongoose schemas (Boards, Columns, Applications)
+├── public/            # Static assets and application hero imagery
+├── scripts/           # Database seeding and configuration scripts
 └── pnpm-workspace.yaml # Workspace management settings
-
 ```
 
 ## Getting Started
