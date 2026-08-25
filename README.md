@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Job Tracker
 
-## Getting Started
+A modern, full-stack Kanban style dashboard designed to manage, organize, and track your job application journey in one centralized workspace.
 
-First, run the development server:
+---
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Kanban Board Interface:** Drag-and-drop or status-toggle mechanics to seamlessly move jobs through various phases (Wishlist, Applied, Interviewing, Offer, Rejected).
+
+- **Comprehensive Job Cards:** Store company names, salaries, roles, descriptions, URLs, and specific interview notes in organized cards.
+
+- **Secure User Authentication:** Powered by a robust backend auth structure to protect personal search metrics and user data.
+
+- **Built for Speed:** Optimized routing and server-side utilities leveraging the Next.js App Router framework. 
+
+---
+## Tech Stack
+
+- **Framework:** Next.js (App Router v16)
+
+- **Language:** TypeScript
+
+- **Styling:** Tailwind CSS / shadcn/ui components
+
+- **Authentication:** BetterAuth
+
+- **Package Manager:** pnpm
+
+- **Database:** MongoDB (with Mongoose models)
+
+---
+## Repository Structure
+
+```text
+
+├── app/ # Next.js App Router (Pages, API routes, Layouts)
+
+├── components/ # Reusable Shadcn/UI and custom application layout pieces
+
+├── lib/ # Database utility, helper hooks, authentication, and core configurations
+
+│ ├── actions/ # Server actions handling data mutation
+
+│ ├── auth/ # Client and server authentication workflows
+
+│ └── models/ # Mongoose schemas (Boards, Columns, Applications)
+
+├── public/ # Static assets and application hero imagery
+
+├── scripts/ # Database seeding and configuration scripts
+
+└── pnpm-workspace.yaml # Workspace management settings
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
+## Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ensure you have [Node.js](https://nodejs.org) and [pnpm](https://pnpm.io) installed on your machine.
 
-## Learn More
+### 2. Installation
 
-To learn more about Next.js, take a look at the following resources:
+Clone the repository locally and install the dependencies:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+git clone https://github.com/rjdev03/Job-Application-Tracker.git
 
-## Deploy on Vercel
+cd Job-Application-Tracker
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+pnpm install
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+
+### 3. Environment Setup
+
+Create a `.env.local` file in the root directory and append your required environment keys (Database URLs, Auth Keys):
+
+```env
+
+DATABASE_URL=your_mongodb_connection_string
+
+AUTH_SECRET=your_secure_auth_secret_key
+
+```
+
+*(Note: `.env.local` is intentionally kept hidden by the `.gitignore` configuration for credential isolation).*
+
+### 4. Run the Development Server
+
+Execute the application environment:
+
+```bash
+
+pnpm dev
+
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to explore the dashboard locally.
