@@ -2,7 +2,6 @@
 
 A modern, full-stack Kanban style dashboard designed to manage, organize, and track your job application journey in one centralized workspace.
 
----
 ## Features
 
 - **Kanban Board Interface:** Drag-and-drop or status-toggle mechanics to seamlessly move jobs through various phases (Wishlist, Applied, Interviewing, Offer, Rejected).
@@ -13,7 +12,6 @@ A modern, full-stack Kanban style dashboard designed to manage, organize, and tr
 
 - **Built for Speed:** Optimized routing and server-side utilities leveraging the Next.js App Router framework. 
 
----
 ## Tech Stack
 
 - **Framework:** Next.js (App Router v16)
@@ -28,7 +26,6 @@ A modern, full-stack Kanban style dashboard designed to manage, organize, and tr
 
 - **Database:** MongoDB (with Mongoose models)
 
----
 ## Repository Structure
 
 ```text
@@ -53,7 +50,6 @@ A modern, full-stack Kanban style dashboard designed to manage, organize, and tr
 
 ```
 
----
 ## Getting Started
 
 ### 1. Prerequisites
