@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Navbar from '@/components/navbar';
 
-const notoSansHeading = Noto_Sans({subsets:['latin'],variable:'--font-heading'});
+const notoSansHeading = Noto_Sans({ subsets: ['latin'], variable: '--font-heading' });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,7 +21,12 @@ export const metadata: Metadata = {
   description: "Track your job applications in one place.",
 };
 
-// app/layout.tsx (line 24 updated)
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,8 +35,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, notoSansHeading.variable)}>
-      <body className="min-h-full flex flex-col">
+      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, notoSansHeading.variable)}
+    >
+      <body className="min-h-full flex flex-col overflow-x-hidden">
         <Navbar />
         {children}
       </body>
