@@ -8,7 +8,7 @@ import { Button } from "./ui/button";
 import CreateJobApplicationDialog from "./create-job-dialog";
 import JobApplicationCard from "./job-application-card";
 import { useBoard } from "@/lib/hooks/useBoards";
-import { closestCorners, DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
+import { closestCorners, DndContext, DragEndEvent, DragOverlay, DragStartEvent, MouseSensor, TouchSensor, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
@@ -19,29 +19,35 @@ interface KanbanBoardProps {
 }
 
 interface ColConfig {
-  color: string; 
+  color: string;
+  badgeBg: string;
   icon: React.ReactNode;
 }
 
 const COLUMN_CONFIG: Array<ColConfig> = [
   {
-    color: "bg-cyan-500",
+    color: "bg-cyan-600",
+    badgeBg: "bg-cyan-700/50",
     icon: <Calendar className="h-4 w-4" />,
   },
   {
-    color: "bg-purple-500",
+    color: "bg-purple-600",
+    badgeBg: "bg-purple-700/50",
     icon: <CheckCircle className="h-4 w-4" />,
   },
   {
-    color: "bg-green-500",
+    color: "bg-emerald-600",
+    badgeBg: "bg-emerald-700/50",
     icon: <Mic className="h-4 w-4"/>,
   },
   {
-    color: "bg-yellow-500",
+    color: "bg-amber-600",
+    badgeBg: "bg-amber-700/50",
     icon: <Award className="h-4 w-4" />,
   },
   {
-    color: "bg-red-500",
+    color: "bg-rose-600",
+    badgeBg: "bg-rose-700/50",
     icon: <XCircle className="h-4 w-4" />,
   },
 ];
@@ -89,14 +95,17 @@ function DroppableColumn({
   };
 
   return (
-    <Card className="min-w-75 shrink-0 shadow-md p-0">
-      <CardHeader className={`${config.color} text-white rounded-t-lg pb-3 pt-3`}>
+    <Card className={`w-[85vw] max-w-[320px] sm:w-[320px] shrink-0 border-gray-200/80 bg-slate-100/60 shadow-sm transition-all rounded-xl p-0 snap-center sm:snap-align-none ${isOver ? "ring-2 ring-primary/50" : ""}`}>
+      <CardHeader className={`${config.color} text-white rounded-t-xl px-4 py-3 shadow-sm`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             {config.icon}
-            <CardTitle className="text-white text-base font-semibold">
+            <CardTitle className="text-white text-sm font-semibold truncate">
               {column.name}
             </CardTitle>
+            <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${config.badgeBg} text-white shrink-0`}>
+              {sortedJobs.length}
+            </span>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -104,18 +113,18 @@ function DroppableColumn({
                 <Button  
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 text-white hover:bg-white/20"
+                  className="h-7 w-7 text-white hover:bg-white/20 rounded-md"
                 >
                   <MoreVertical className="h-4 w-4"/>
                 </Button>
               }
             />
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem 
-                className="text-destructive cursor-pointer"
+                className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer text-xs font-medium"
                 onClick={handleDelete}
               >
-                <Trash2 className="mr-2 h-4 w-4"/>
+                <Trash2 className="mr-2 h-3.5 w-3.5"/>
                 Delete Column
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -125,21 +134,25 @@ function DroppableColumn({
 
       <CardContent
         ref={setNodeRef} 
-        className={`space-y-2 pt-4 bg-gray-50/50 min-h-100 rounded-b-lg ${isOver ? "ring-2 ring-blue-500" : ""}`}
+        className="space-y-3 p-3 min-h-125 flex flex-col justify-between"
       >
-        <SortableContext
-          items={sortedJobs.map((job) => job._id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {sortedJobs.map((job) => (
-            <SortableJobCard 
-              key={job._id} 
-              job={{ ...job, columnId: column._id }}
-              columns={sortedColumns} 
-            />
-          ))}
-        </SortableContext>
-        <CreateJobApplicationDialog columnId={column._id} boardId={boardId} />
+        <div className="space-y-3 flex-1 overflow-y-auto max-h-[calc(100vh-16rem)] pr-0.5">
+          <SortableContext
+            items={sortedJobs.map((job) => job._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {sortedJobs.map((job) => (
+              <SortableJobCard 
+                key={job._id} 
+                job={{ ...job, columnId: column._id }}
+                columns={sortedColumns} 
+              />
+            ))}
+          </SortableContext>
+        </div>
+        <div className="pt-2 border-t border-gray-200/60">
+          <CreateJobApplicationDialog columnId={column._id} boardId={boardId} />
+        </div>
       </CardContent>
     </Card>
   );
@@ -157,7 +170,7 @@ function SortableJobCard({ job, columns } : { job: JobApplication; columns: Colu
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.4 : 1,
   };
 
   return (
@@ -178,9 +191,15 @@ export default function KanbanBoard({ board }: KanbanBoardProps) {
   const sortedColumns = [...(columns || [])].sort((a, b) => a.order - b.order);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150,
+        tolerance: 5,
       },
     })
   );
@@ -199,6 +218,7 @@ export default function KanbanBoard({ board }: KanbanBoardProps) {
     const activeId = active.id as string;
     const overId = over.id as string;
 
+    // Determine source location
     let draggedJob: JobApplication | null = null;
     let sourceColumn: Column | null = null;
     let sourceIndex = -1;
@@ -222,15 +242,17 @@ export default function KanbanBoard({ board }: KanbanBoardProps) {
       .find((job) => job._id === overId);
 
     let targetColumnId: string;
-    let newOrder: number;
+    let newIndex: number;
 
     if (targetColumn) {
+      // Dropped into an empty column or direct column container
       targetColumnId = targetColumn._id;
       const jobsInTarget = [...(targetColumn.jobApplications || [])]
         .filter((j) => j._id !== activeId)
         .sort((a, b) => a.order - b.order);
-      newOrder = jobsInTarget.length;
+      newIndex = jobsInTarget.length;
     } else if (targetJob) {
+      // Dropped over another job card
       const targetJobColumn = sortedColumns.find((col) =>
         (col.jobApplications || []).some((j) => j._id === targetJob._id)
       );
@@ -239,7 +261,6 @@ export default function KanbanBoard({ board }: KanbanBoardProps) {
       if (!targetColumnId) return;
 
       const targetColumnObj = sortedColumns.find((col) => col._id === targetColumnId);
-
       if (!targetColumnObj) return;
 
       const allJobsInTargetOriginal = [...(targetColumnObj.jobApplications || [])].sort((a, b) => a.order - b.order);
@@ -250,36 +271,33 @@ export default function KanbanBoard({ board }: KanbanBoardProps) {
 
       if (targetIndexInFiltered !== -1) {
         if (sourceColumn._id === targetColumnId) {
-          if (sourceIndex < targetIndexInOriginal) {
-            newOrder = targetIndexInFiltered + 1;
-          } else {
-            newOrder = targetIndexInFiltered;
-          }
+          newIndex = sourceIndex < targetIndexInOriginal ? targetIndexInFiltered + 1 : targetIndexInFiltered;
         } else {
-          newOrder = targetIndexInFiltered;
+          newIndex = targetIndexInFiltered;
         }
       } else {
-        newOrder = allJobsInTargetFiltered.length;
+        newIndex = allJobsInTargetFiltered.length;
       }
     } else {
       return;
     }
 
-    if (!targetColumnId) {
+    // Guard against redundant state mutations
+    if (sourceColumn._id === targetColumnId && sourceIndex === newIndex) {
       return;
     }
 
     try {
-      await moveJob(activeId, targetColumnId, newOrder);
+      await moveJob(activeId, targetColumnId, newIndex);
     } catch (err) {
-      console.error("Failed to move job:", err);
+      console.error("Failed to move job application:", err);
     }
   }
 
   const activeJob = sortedColumns
     .flatMap((col) => col.jobApplications || [])
     .find((job) => job._id === activeId);
-  
+
   return (
     <DndContext
       id="kanban-dnd-context"
@@ -290,21 +308,22 @@ export default function KanbanBoard({ board }: KanbanBoardProps) {
     >
       <div className="space-y-4">
         {error && (
-          <div className="flex items-center justify-between p-3 rounded-lg bg-destructive/15 text-destructive border border-destructive/20 text-sm">
+          <div className="flex items-center justify-between p-3.5 rounded-xl bg-destructive/10 text-destructive border border-destructive/20 text-xs sm:text-sm font-medium shadow-sm">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
-            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={clearError}>
-              <X className="h-3 w-3" />
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/20" onClick={clearError}>
+              <X className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}
 
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory sm:snap-none scrollbar-thin scrollbar-thumb-gray-300">
           {sortedColumns.map((col, index) => {
             const config = COLUMN_CONFIG[index] || {
-              color: "bg-gray-500",
+              color: "bg-slate-600",
+              badgeBg: "bg-slate-700/50",
               icon: <Calendar className="h-4 w-4" />,
             };
             return (
@@ -323,7 +342,7 @@ export default function KanbanBoard({ board }: KanbanBoardProps) {
 
       <DragOverlay>
         {activeJob ? (
-          <div className="opacity-50">
+          <div className="opacity-95 rotate-1 shadow-2xl rounded-xl">
             <JobApplicationCard job={activeJob} columns={sortedColumns} />
           </div>
         ) : null}

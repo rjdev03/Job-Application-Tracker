@@ -9,25 +9,24 @@ import SignOutButton from './sign-out-btn';
 import { useSession } from '@/lib/auth/auth-client';
 
 export default function Navbar() {
-  const {data: session} = useSession();
-    return (
-    <nav className="border-b border-gray-200 bg-white">
-      <div className="container mx-auto flex h-16 items-center px-4 justify-between">
+  const { data: session } = useSession();
+
+  return (
+    <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-all">
+      <div className="container mx-auto flex h-16 items-center px-4 sm:px-6 justify-between">
         <Link
           href="/"
-          className="flex items-center gap-2 text-xl font-semibold text-primary"
-        >
+          className="flex items-center gap-2 text-xl font-semibold text-primary tracking-tight">
           <Briefcase />
-          Job Tracker
+          <span>Job Tracker</span>
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {session?.user ? (
             <>
               <Link href="/dashboard">
                 <Button
                   variant="ghost"
-                  className="text-gray-700 hover:text-black"
-                >
+                  className="text-sm font-medium text-gray-700 hover:text-gray-900">
                   Dashboard
                 </Button>
               </Link>
@@ -35,16 +34,16 @@ export default function Navbar() {
                 <DropdownMenuTrigger
                   render={
                     <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary text-white">
+                      variant="ghost"
+                      className="relative h-9 w-9 rounded-full ring-2 ring-transparent hover:ring-gray-200 transition-all">
+                      <Avatar className="h-9 w-9">
+                        <AvatarFallback className="bg-primary font-semibold text-white">
                           {session.user.name[0].toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
-                  }/>
-
+                  }
+                />
                 <DropdownMenuContent className="w-56" align="end">
                   <DropdownMenuGroup>
                     <DropdownMenuLabel className="font-normal">
@@ -66,13 +65,14 @@ export default function Navbar() {
             <>
               <Link href="/sign-in">
                 <Button
-                  className="text-white">
+                  variant='ghost'
+                  className="text-sm font-medium shadow-sm">
                   Log In
                 </Button>
               </Link>
               <Link href="/sign-up">
-                <Button className="bg-primary hover:bg-primary/90">
-                  Start for free
+                <Button className="bg-primary hover:bg-primary/90 text-sm font-medium transition-all">
+                  Sign Up
                 </Button>
               </Link>
             </>

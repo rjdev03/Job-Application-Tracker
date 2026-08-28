@@ -112,7 +112,7 @@ export async function updateJobApplication(id: string, updates: UpdateJobApplica
 
     await connectDB();
 
-    // Atomic ownership check: ensures action only touches jobs owned by session.user.id
+    // Atomic ownership check
     const jobApplication = await JobApplication.findOne({ _id: id, userId: session.user.id });
     if (!jobApplication) {
       return { error: "Job application not found or access denied" };
@@ -120,7 +120,7 @@ export async function updateJobApplication(id: string, updates: UpdateJobApplica
 
     const { columnId, order, ...rawFields } = updates;
 
-    // Explicitly whitelist allowed fields to prevent mass-assignment payload injections
+    // Field Whitelisting
     const allowedUpdates: Partial<UpdateJobApplicationInput> = {};
     if (rawFields.company !== undefined) allowedUpdates.company = rawFields.company;
     if (rawFields.position !== undefined) allowedUpdates.position = rawFields.position;
@@ -142,6 +142,11 @@ export async function updateJobApplication(id: string, updates: UpdateJobApplica
         return { error: "Target column not found" };
       }
 
+      const targetBoard = await Board.findOne({ _id: targetColumn.boardId, userId: session.user.id });
+      if (!targetBoard) {
+        return { error: "Access denied to target column" };
+      }
+
       await Column.findByIdAndUpdate(currentColumnId, { $pull: { jobApplications: id } });
 
       const jobsInTargetColumn = await JobApplication.find({
@@ -158,7 +163,6 @@ export async function updateJobApplication(id: string, updates: UpdateJobApplica
         const jobsThatNeedToShift = jobsInTargetColumn.slice(order);
 
         if (jobsThatNeedToShift.length > 0) {
-          // Perform bulk update instead of individual loops
           const bulkOps = jobsThatNeedToShift.map((job) => ({
             updateOne: {
               filter: { _id: job._id },
@@ -177,6 +181,7 @@ export async function updateJobApplication(id: string, updates: UpdateJobApplica
 
       await Column.findByIdAndUpdate(newColumnId, { $push: { jobApplications: id } });
     } else if (order !== undefined && order !== null) {
+      // Reordering within the same column
       const otherJobsInColumn = await JobApplication.find({
         columnId: currentColumnId,
         _id: { $ne: id },
@@ -239,7 +244,6 @@ export async function deleteJobApplication(id: string) {
 
     await connectDB();
 
-    // Atomic delete with ownership scoping
     const deletedJob = await JobApplication.findOneAndDelete({
       _id: id,
       userId: session.user.id,
@@ -249,7 +253,6 @@ export async function deleteJobApplication(id: string) {
       return { error: "Job application not found or access denied" };
     }
 
-    // Clean up column reference
     await Column.findByIdAndUpdate(deletedJob.columnId, {
       $pull: { jobApplications: id },
     });
@@ -270,33 +273,24 @@ export async function deleteColumn(columnId: string, boardId: string) {
 
     await connectDB();
 
-    // 1. Verify board ownership
     const board = await Board.findOne({ _id: boardId, userId: session.user.id });
     if (!board) {
       return { error: "Board not found or access denied" };
     }
 
-    // 2. Verify column exists and belongs to the specified board
     const column = await Column.findOne({ _id: columnId, boardId });
     if (!column) {
       return { error: "Column not found or access denied" };
     }
 
-    // 3. Delete all job applications associated with this column and user
     await JobApplication.deleteMany({ columnId, userId: session.user.id });
-
-    // 4. Delete the column document
     await Column.deleteOne({ _id: columnId, boardId });
-
-    // 5. Remove column reference from Board document
     await Board.updateOne(
       { _id: boardId, userId: session.user.id },
       { $pull: { columns: columnId } }
     );
 
-    // 6. Keep revalidation strategy consistent across all server actions
     revalidatePath("/dashboard");
-
     return { success: true };
   } catch (error) {
     console.error("Failed to delete column:", error);
