@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth/auth-client";
 import { Loader2, AlertCircle } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -19,7 +20,7 @@ export default function SignIn() {
     
   const router = useRouter();
     
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
     
     setError("");
@@ -33,7 +34,9 @@ export default function SignIn() {
       
       if (result.error) {
         setError(result.error.message ?? "Failed to sign in");
+        toast.error(result.error.message ?? "Failed to sign in");
       } else {
+        toast.success("Welcome back!");
         router.push("/dashboard");
       }
     } catch (err) {

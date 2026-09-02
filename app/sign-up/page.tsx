@@ -9,6 +9,7 @@ import { useState } from "react";
 import { signUp } from "@/lib/auth/auth-client";
 import { useRouter } from "next/navigation";
 import { Loader2, AlertCircle } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function SignUp() {
   const [name, setName] = useState("");
@@ -33,7 +34,9 @@ export default function SignUp() {
       });
       if (result.error) {
         setError(result.error.message ?? "Failed to sign up");
+        toast.error(result.error.message ?? "Failed to sign up");
       } else {
+        toast.success("Account created successfully!");
         router.push("/dashboard");
       }
     } catch (err) {

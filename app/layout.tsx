@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/navbar";
 
 const notoSansHeading = Noto_Sans({ subsets: ["latin"], variable: "--font-heading" });
@@ -38,6 +39,7 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, notoSansHeading.variable)}
     >
       <body className="min-h-full flex flex-col bg-white text-gray-900 overflow-x-hidden">
+        <Toaster position="bottom-right" toastOptions={{ duration: 3500 }}/>
         <Navbar />
         {children}
       </body>

@@ -1,6 +1,7 @@
 "use client"
 
 import { Plus } from "lucide-react";
+import toast from "react-hot-toast";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Label } from "./ui/label";
@@ -29,8 +30,9 @@ export default function CreateJobApplicationDialog({ columnId, boardId} : Create
   const [open, setOpen] = useState<boolean>(false);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
+    const toastId = toast.loading("Adding job application...");
 
     try {
       const result = await createJobApplication({
@@ -41,12 +43,14 @@ export default function CreateJobApplicationDialog({ columnId, boardId} : Create
       });
 
       if (!result.error) {
+        toast.success(`Application for ${formData.company} added!`, { id: toastId });
         setFormData(INITIAL_FORM_DATA);
         setOpen(false);
       } else {
-        console.error("Failed to create job: ", result.error);
+        toast.error(result.error ?? "Failed to create job application", { id: toastId });
       }
     } catch(err) {
+      toast.error("An unexpected error occurred", { id: toastId });
       console.error(err)
     }
   }

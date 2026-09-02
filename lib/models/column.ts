@@ -4,6 +4,7 @@ export interface IColumn extends Document {
     name: string;
     boardId: mongoose.Types.ObjectId;
     order: number;
+    color?: string;
     jobApplications: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
@@ -25,6 +26,10 @@ const ColumnSchema = new Schema<IColumn>(
             type: Number,
             required: true,
             default: 0,
+        },
+        color: {
+            type: String,
+            default: "cyan",
         },
         jobApplications: [
             {

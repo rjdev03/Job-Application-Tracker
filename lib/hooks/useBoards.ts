@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Board, Column, JobApplication } from "../models/models.types";
-import { updateJobApplication, deleteColumn } from "../actions/job-applications";
+import { updateJobApplication } from "../actions/job-applications";
+import { createColumn as createColumnAction, updateColumn as updateColumnAction, deleteColumn as deleteColumnAction } from "../actions/columns";
 
 export function useBoard(initialBoard?: Board | null) {
   const [board, setBoard] = useState<Board | null>(initialBoard || null);
@@ -24,7 +25,6 @@ export function useBoard(initialBoard?: Board | null) {
     newOrder: number
   ) {
     setError(null);
-    // Deep clone state to preserve accurate rollback targets
     const previousColumns = JSON.parse(JSON.stringify(columns)) as Column[];
 
     setColumns((prev) => {
@@ -100,6 +100,40 @@ export function useBoard(initialBoard?: Board | null) {
     }
   }
 
+  async function addColumn(name: string, color: string) {
+    if (!board?._id) return { error: "Board context missing" };
+    setError(null);
+
+    const res = await createColumnAction({
+      boardId: board._id,
+      name,
+      color,
+    });
+
+    if (res.data) {
+      setColumns((prev) => [...prev, { ...res.data, jobApplications: [] }]);
+    }
+    return res;
+  }
+
+  async function updateColumn(columnId: string, updates: { name?: string; color?: string }) {
+    if (!board?._id) return { error: "Board context missing" };
+    setError(null);
+
+    // Optimistically update
+    const previousColumns = JSON.parse(JSON.stringify(columns)) as Column[];
+    setColumns((prev) =>
+      prev.map((col) => (col._id === columnId ? { ...col, ...updates } : col))
+    );
+
+    const res = await updateColumnAction(columnId, board._id, updates);
+    if (res.error) {
+      setColumns(previousColumns);
+      setError(res.error);
+    }
+    return res;
+  }
+
   async function handleDeleteColumn(columnId: string) {
     if (!board?._id) {
       setError("Board context missing");
@@ -112,7 +146,7 @@ export function useBoard(initialBoard?: Board | null) {
     setColumns((prev) => prev.filter((col) => col._id !== columnId));
 
     try {
-      const result = await deleteColumn(columnId, board._id);
+      const result = await deleteColumnAction(columnId, board._id);
 
       if (result && "error" in result && result.error) {
         setColumns(previousColumns);
@@ -128,12 +162,14 @@ export function useBoard(initialBoard?: Board | null) {
     }
   }
 
-  return { 
-    board, 
-    columns, 
-    error, 
-    clearError, 
-    moveJob, 
-    deleteColumn: handleDeleteColumn 
+  return {
+    board,
+    columns,
+    error,
+    clearError,
+    moveJob,
+    addColumn,
+    updateColumn,
+    deleteColumn: handleDeleteColumn,
   };
 }

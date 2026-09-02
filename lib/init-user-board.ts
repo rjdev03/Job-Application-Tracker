@@ -5,22 +5,27 @@ const DEFAULT_COLUMNS = [
     {
         name: "Wish List",
         order: 0,
+        color: "cyan",
     },
     {
         name: "Applied",
         order: 1,
+        color: "purple",
     },
     {
         name: "Interviewing",
         order: 2,
+        color: "emerald",
     },
     {
         name: "Offer",
         order: 3,
+        color: "amber",
     },
     {
         name: "Rejected",
         order: 4,
+        color: "rose",
     },
 ];
 
@@ -50,6 +55,7 @@ export async function initializeUserBoard(userId: string) {
                 (col) => Column.create({
                     name: col.name,
                     order: col.order,
+                    color: col.color,
                     boardId: board._id,
                     jobApplications: [],
                 })

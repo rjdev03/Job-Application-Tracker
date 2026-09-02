@@ -11,6 +11,7 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export interface JobApplicationCardProps {
   job: JobApplication;
@@ -58,8 +59,10 @@ export default function JobApplicationCard({ job, columns, dragHandleProps }: Jo
     setIsEditing(open);
   };
 
-  async function handleUpdate(e: React.FormEvent<HTMLFormElement>) {
+  async function handleUpdate(e: React.SyntheticEvent) {
     e.preventDefault();
+    const toastId = toast.loading("Updating application...");
+
     try {
       const result = await updateJobApplication(job._id, {
         ...formData,
@@ -67,32 +70,51 @@ export default function JobApplicationCard({ job, columns, dragHandleProps }: Jo
       });
 
       if (!result.error) {
+        toast.success("Application updated!", { id: toastId });
         setIsEditing(false);
+      } else {
+        toast.error(result.error ?? "Failed to update", { id: toastId });
       }
     } catch (err) {
-      console.error("Failed to update job application", err);
+      toast.error("Failed to update job application", { id: toastId });
+      console.log(err);
     }
   }
 
   async function handleDelete() {
+    if (!window.confirm(`Delete application for ${job.position} at ${job.company}?`)) {
+      return;
+    }
+
+    const toastId = toast.loading("Deleting application...");
     try {
       const result = await deleteJobApplication(job._id);
 
-      if (result.error) {
-        console.error("Failed to delete job application: ", result.error);
+      if (!result.error) {
+        toast.success("Application removed", { id: toastId });
+      } else {
+        toast.error(result.error ?? "Failed to delete", { id: toastId });
       }
     } catch (err) {
-      console.error("Failed to delete job application", err);
+      toast.error("Failed to delete application", { id: toastId });
+      console.log(err);
     }
   }
 
   async function handleMove(newColumnId: string) {
+    const toastId = toast.loading("Moving application...");
     try {
-      await updateJobApplication(job._id, {
+      const result = await updateJobApplication(job._id, {
         columnId: newColumnId,
       });
+      if (!result.error) {
+        toast.success("Application moved!", { id: toastId });
+      } else {
+        toast.error(result.error ?? "Failed to move", { id: toastId });
+      }
     } catch (err) {
-      console.error("Failed to move job application", err);
+      toast.error("Failed to move application", { id: toastId });
+      console.log(err);
     }
   }
 
