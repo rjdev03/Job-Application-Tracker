@@ -11,7 +11,7 @@ declare global {
     var mongoose: MongooseCache | undefined;
 }
 
-const cached: MongooseCache = global.mongoose || { conn: null, promise: null}; //changed to const from let in accordance with TS error
+const cached: MongooseCache = global.mongoose || { conn: null, promise: null};
 
 if (!global.mongoose) {
     global.mongoose = cached;
@@ -32,9 +32,11 @@ async function connectDB() {
             bufferCommands: false,
         };
         
-        cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-            return mongoose;
-        })
+        cached.promise = mongoose.connect(MONGODB_URI, {
+            ...opts,
+            dbName: "kanban",}).then((mongoose) => {
+                return mongoose;
+            });
     }
 
     try {

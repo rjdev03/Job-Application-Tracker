@@ -7,7 +7,7 @@ import clientPromise from "../mongodb-client";
 
 // Get the resolved MongoClient and target the database
 const client = await clientPromise;
-const db = client.db();
+const db = client.db("kanban");
 
 export const auth = betterAuth({
   database: mongodbAdapter(db),
